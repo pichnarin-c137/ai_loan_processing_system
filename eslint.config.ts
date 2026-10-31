@@ -25,7 +25,6 @@ export default defineConfig(
 	svelte.configs.prettier,
 	{
 		languageOptions: {
-			globals: { ...globals.browser, ...globals.node },
 			parserOptions: {
 				projectService: true,
 				tsconfigRootDir: import.meta.dirname,
@@ -36,6 +35,25 @@ export default defineConfig(
 			// TypeScript already checks for undefined names.
 			'no-undef': 'off'
 		}
+	},
+	{
+		files: ['frontend/src/**'],
+		languageOptions: { globals: globals.browser },
+		rules: {
+			// The app runs in the browser. TypeScript can't catch these, because Vite's types pull in
+			// the Node globals for the whole frontend project.
+			'no-restricted-globals': [
+				'error',
+				...['process', 'Buffer', 'global', '__dirname', '__filename', 'require'].map((name) => ({
+					name,
+					message: 'Node-only global; use import.meta.env or a browser API.'
+				}))
+			]
+		}
+	},
+	{
+		files: ['auth/**', 'frontend/e2e/**', '**/*.config.ts'],
+		languageOptions: { globals: globals.node }
 	},
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts'],

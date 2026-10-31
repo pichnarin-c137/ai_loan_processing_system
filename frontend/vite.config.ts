@@ -23,6 +23,8 @@ export default defineConfig({
 			// SPA: every unknown path falls back to index.html and is routed in the browser.
 			adapter: adapter({ fallback: 'index.html' })
 		}),
+		// Keep these settings in sync with the `prepare` script in package.json, which compiles the
+		// messages before the first dev server or typecheck run.
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',

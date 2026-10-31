@@ -1,3 +1,5 @@
+import threading
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -47,6 +49,26 @@ def test_check_reports_false_when_service_is_unreachable(monkeypatch: pytest.Mon
     monkeypatch.setattr(health, "get_redis", BrokenRedis)
 
     assert health.check_redis() is False
+
+
+def test_check_past_the_deadline_counts_as_failed(monkeypatch: pytest.MonkeyPatch) -> None:
+    release = threading.Event()
+
+    def hanging_check() -> bool:
+        release.wait()
+        return True
+
+    set_checks(monkeypatch, database=True, redis=True, storage=True)
+    monkeypatch.setattr(health, "check_storage", hanging_check)
+    monkeypatch.setattr(health, "CHECK_DEADLINE_SECONDS", 0.1)
+
+    try:
+        response = client.get("/api/health")
+    finally:
+        release.set()
+
+    assert response.status_code == 503
+    assert response.json()["checks"] == {"database": True, "redis": True, "storage": False}
 
 
 def test_docs_are_served_under_api() -> None:
