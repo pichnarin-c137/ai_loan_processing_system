@@ -18,7 +18,15 @@
 		auth: m.health_auth
 	};
 
-	const allOk = $derived(services?.every((service) => service.ok) ?? false);
+	const summary = $derived(
+		services === undefined ? 'checking' : services.every((service) => service.ok) ? 'ok' : 'down'
+	);
+	const summaryText = {
+		checking: m.health_checking,
+		ok: m.health_all_ok,
+		down: m.health_some_down
+	};
+	const summaryTone = { checking: 'text-slate-600', ok: 'text-emerald-700', down: 'text-red-700' };
 </script>
 
 <section
@@ -37,12 +45,9 @@
 		</button>
 	</div>
 
-	{#if services === undefined}
-		<p role="status" class="mt-4 text-slate-600">{m.health_checking()}</p>
-	{:else}
-		<p role="status" class={['mt-2 text-sm', allOk ? 'text-emerald-700' : 'text-red-700']}>
-			{allOk ? m.health_all_ok() : m.health_some_down()}
-		</p>
+	<!-- One live region that stays mounted, so screen readers announce each change of its text. -->
+	<p role="status" class={['mt-2 text-sm', summaryTone[summary]]}>{summaryText[summary]()}</p>
+	{#if services !== undefined}
 		<ul class="mt-4 divide-y divide-slate-100">
 			{#each services as service (service.name)}
 				<li class="flex items-center justify-between py-2">

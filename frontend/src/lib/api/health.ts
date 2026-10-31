@@ -32,10 +32,12 @@ function isHealthReport(value: unknown): value is HealthReport {
 	);
 }
 
-/** The parsed JSON body, or null if the request or parsing failed. */
+/** The parsed JSON body, or null if the request or parsing failed or took longer than 8 seconds. */
 async function getJson(fetchFn: typeof fetch, url: string): Promise<unknown> {
 	try {
-		const response = await fetchFn(url);
+		// Longer than the backend's 5-second check deadline, so its 503 listing which service is
+		// down arrives before the browser gives up.
+		const response = await fetchFn(url, { signal: AbortSignal.timeout(8000) });
 		return (await response.json()) as unknown;
 	} catch {
 		return null;

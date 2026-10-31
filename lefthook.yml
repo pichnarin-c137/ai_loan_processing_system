@@ -1,14 +1,19 @@
 pre-commit:
   parallel: true
   jobs:
-    - name: prettier
-      glob: '*.{ts,svelte,json,md,yml,yaml,css,html}'
-      run: pnpm exec prettier --write --ignore-unknown {staged_files}
-      stage_fixed: true
-    - name: eslint
-      glob: '*.{ts,svelte}'
-      run: pnpm exec eslint --fix {staged_files}
-      stage_fixed: true
+    # One after the other, so the two fixers never rewrite the same file at once.
+    - name: eslint-then-prettier
+      group:
+        piped: true
+        jobs:
+          - name: eslint
+            glob: '*.{ts,svelte}'
+            run: pnpm exec eslint --fix {staged_files}
+            stage_fixed: true
+          - name: prettier
+            glob: '*.{ts,svelte,json,md,yml,yaml,css,html}'
+            run: pnpm exec prettier --write --ignore-unknown {staged_files}
+            stage_fixed: true
     - name: ruff
       root: backend/
       glob: '*.py'
