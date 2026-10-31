@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     s3_secret_key: SecretStr = SecretStr("loan-desk-secret")
     s3_bucket: str = "loan-desk-documents"
 
+    # The Better Auth service signs the JWTs; we verify them against its public keys.
+    auth_jwks_url: str = "http://localhost:3001/api/auth/jwks"
+    # Token issuer: the site origin the browser uses.
+    auth_issuer: str = "http://localhost:5173"
+    auth_audience: str = "loan-desk-api"
+
 
 @lru_cache
 def get_settings() -> Settings:

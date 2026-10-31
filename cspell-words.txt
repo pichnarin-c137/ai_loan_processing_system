@@ -1,12 +1,14 @@
 addopts
 aikidosec
 astext
+autouse
 boto
 btrim
 chrislusf
 conname
 contype
 datagen
+datname
 dramatiq
 fastapi
 healthcheck
@@ -25,11 +27,13 @@ poolclass
 psycopg
 pycache
 pydantic
+pyjwt
 pyproject
 pytest
 PYTHONUNBUFFERED
 pytrace
 redoc
+refetches
 repr
 rolname
 seaweedfs
@@ -41,3 +45,4 @@ uvicorn
 venv
 vercel
 vite
+xfwd

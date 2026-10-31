@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api import health
+from app.api import health, me
 from app.core.config import get_settings
 
 
@@ -13,6 +13,7 @@ def create_app() -> FastAPI:
         openapi_url="/api/openapi.json",
     )
     app.include_router(health.router, prefix="/api")
+    app.include_router(me.router, prefix="/api")
     return app
 
 

@@ -35,7 +35,8 @@ export default defineConfig({
 	server: {
 		// Same paths as production, where Caddy does this routing.
 		proxy: {
-			'/api/auth': { target: authUrl, changeOrigin: true },
+			// xfwd passes the client IP on in X-Forwarded-For, which Better Auth's rate limits use.
+			'/api/auth': { target: authUrl, changeOrigin: true, xfwd: true },
 			'/api': { target: apiUrl, changeOrigin: true, ws: true }
 		}
 	},
