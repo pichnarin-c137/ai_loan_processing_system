@@ -6,7 +6,10 @@
 
 	let { children }: LayoutProps = $props();
 
-	const links = [{ href: resolve('/(admin)/admin/users'), label: m.nav_users }];
+	const links = [
+		{ href: resolve('/(admin)/admin/users'), label: m.nav_users },
+		{ href: resolve('/(admin)/admin/whats-new'), label: m.nav_whats_new }
+	];
 </script>
 
 <div class="flex flex-1 flex-col md:flex-row">

@@ -69,3 +69,15 @@ test('signed-out visitors are sent to the login page', async ({ page }) => {
 
 	await expect(page).toHaveURL('/login?next=%2Fmy');
 });
+
+test('admins can read what changed in each release', async ({ page }) => {
+	await signInAs(page, 'admin');
+	await page.goto('/admin/whats-new');
+
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText("What's new");
+	await expect(page.getByRole('link', { name: "What's new" })).toHaveAttribute(
+		'aria-current',
+		'page'
+	);
+	await expect(page.getByRole('link', { name: 'PR #1', exact: true })).toBeVisible();
+});

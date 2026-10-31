@@ -24,6 +24,7 @@
 	"nav_sign_in": "Sign in",
 	"nav_sign_out": "Sign out",
 	"nav_users": "Users",
+	"nav_whats_new": "What's new",
 	"admin_portal": "Administration",
 	"role_customer": "Customer",
 	"role_officer": "Loan officer",
@@ -75,5 +76,8 @@
 	"admin_ban_confirm": "Ban {name}? They are signed out everywhere and can't sign in until unbanned.",
 	"admin_role_for": "Role for {name}",
 	"admin_you": "you",
-	"admin_error": "Something went wrong. Reload the page and try again."
+	"admin_error": "Something went wrong. Reload the page and try again.",
+	"whats_new_title": "What's new",
+	"whats_new_intro": "Changes to the app, newest first.",
+	"whats_new_pr": "PR #{number}"
 }
