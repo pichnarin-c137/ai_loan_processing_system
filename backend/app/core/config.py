@@ -19,7 +19,12 @@ class Settings(BaseSettings):
 
     app_name: str = "Loan Desk"
 
-    database_url: str = "postgresql+psycopg://loan_desk:loan_desk@localhost:5433/loan_desk"
+    # API and worker connect as loan_desk_app (no UPDATE/DELETE on audit_events);
+    # migrations run as the owner loan_desk.
+    database_url: str = "postgresql+psycopg://loan_desk_app:loan_desk_app@localhost:5433/loan_desk"
+    migration_database_url: str = (
+        "postgresql+psycopg://loan_desk:loan_desk@localhost:5433/loan_desk"
+    )
     redis_url: str = "redis://localhost:6379/0"
 
     # Any S3-compatible store: SeaweedFS locally, Cloudflare R2 in production.

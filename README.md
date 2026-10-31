@@ -31,6 +31,23 @@ pnpm lint && pnpm typecheck && pnpm format:check && pnpm spell && pnpm test && p
 cd backend && uv run ruff check && uv run ruff format --check && uv run mypy app tests && uv run pytest
 ```
 
+The backend tests need Postgres: `docker compose -f infra/compose.yml up -d postgres`.
+
+## Database
+
+Migrations live in `backend/migrations/` and run as the owner role `loan_desk` (the `migrate`
+service does this on `docker compose up`). The API and worker connect as `loan_desk_app`, which
+can't change or delete audit events. To add a migration:
+
+```sh
+cd backend && uv run alembic revision --autogenerate -m "add widgets"
+```
+
+Review the generated file and grant `loan_desk_app` access to every new table in it; a test fails
+otherwise. `infra/postgres/init/01-app-role.sql` creates `loan_desk_app` locally when the Postgres
+volume is new (if yours is older, run `docker compose -f infra/compose.yml down -v` once). In
+production, create that role by hand with a strong password before the first deploy.
+
 ## Packages
 
 Install only through safe-chain. New versions must be 3+ days old, and only packages under

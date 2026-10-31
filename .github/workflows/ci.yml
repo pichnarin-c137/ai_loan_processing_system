@@ -40,6 +40,21 @@ jobs:
   python:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The database tests need Postgres; same credentials and host port as infra/compose.yml.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: loan_desk
+          POSTGRES_PASSWORD: loan_desk
+          POSTGRES_DB: loan_desk
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U loan_desk -d loan_desk"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     defaults:
       run:
         working-directory: backend
