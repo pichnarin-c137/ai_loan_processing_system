@@ -1,0 +1,23 @@
+{
+	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+	"version": "0.2",
+	"language": "en,en-GB",
+	"useGitignore": true,
+	"dictionaryDefinitions": [
+		{ "name": "project-words", "path": "./cspell-words.txt", "addWords": true }
+	],
+	"dictionaries": ["project-words"],
+	"ignorePaths": [
+		"pnpm-lock.yaml",
+		"**/uv.lock",
+		"**/node_modules/**",
+		"**/.svelte-kit/**",
+		"**/.venv/**",
+		"frontend/src/lib/paraglide/**",
+		"frontend/project.inlang/**",
+		"frontend/messages/km.json",
+		"**/*.svg",
+		".vscode/**"
+	],
+	"ignoreRegExpList": ["[\\u1780-\\u17FF\\u19E0-\\u19FF]+"]
+}

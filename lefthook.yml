@@ -1,0 +1,18 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: prettier
+      glob: '*.{ts,svelte,json,md,yml,yaml,css,html}'
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+    - name: eslint
+      glob: '*.{ts,svelte}'
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+    - name: ruff
+      root: backend/
+      glob: '*.py'
+      run: uv run ruff check --fix {staged_files} && uv run ruff format {staged_files}
+      stage_fixed: true
+    - name: cspell
+      run: pnpm exec cspell --no-progress --no-must-find-files {staged_files}
