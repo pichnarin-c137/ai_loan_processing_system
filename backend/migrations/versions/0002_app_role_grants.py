@@ -10,17 +10,9 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 # Each new table needs its own GRANT in a migration (a test checks this).
-FULL_ACCESS = (
-    "applicants",
-    "loan_applications",
-    "documents",
-    "ai_calls",
-    "extractions",
-    "credit_memos",
-    "rule_results",
-    "risk_flags",
-)
-INSERT_ONLY = ("audit_events", "decisions")
+FULL_ACCESS = ("applicants", "loan_applications", "documents", "extractions", "risk_flags")
+# History: a changed decision, a re-run of the rules or a new memo version adds rows.
+INSERT_ONLY = ("audit_events", "decisions", "ai_calls", "rule_results", "credit_memos")
 READ_ONLY = ("policy_versions", "policy_rules")
 ALL_TABLES = (*FULL_ACCESS, *INSERT_ONLY, *READ_ONLY)
 

@@ -51,7 +51,7 @@ jobs:
         ports:
           - 5433:5432
         options: >-
-          --health-cmd "pg_isready -U loan_desk -d loan_desk"
+          --health-cmd "pg_isready -h 127.0.0.1 -U loan_desk -d loan_desk"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10

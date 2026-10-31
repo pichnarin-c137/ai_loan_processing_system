@@ -6,18 +6,19 @@ from app.models import Base
 APP_ROLE = "loan_desk_app"
 PRIVILEGES = ["SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE"]
 CRUD = {"SELECT", "INSERT", "UPDATE", "DELETE"}
+INSERT_ONLY = {"SELECT", "INSERT"}
 
 EXPECTED: dict[str, set[str]] = {
     "applicants": CRUD,
     "loan_applications": CRUD,
     "documents": CRUD,
-    "ai_calls": CRUD,
     "extractions": CRUD,
-    "credit_memos": CRUD,
-    "rule_results": CRUD,
     "risk_flags": CRUD,
-    "audit_events": {"SELECT", "INSERT"},
-    "decisions": {"SELECT", "INSERT"},
+    "audit_events": INSERT_ONLY,
+    "decisions": INSERT_ONLY,
+    "ai_calls": INSERT_ONLY,
+    "rule_results": INSERT_ONLY,
+    "credit_memos": INSERT_ONLY,
     "policy_versions": {"SELECT"},
     "policy_rules": {"SELECT"},
 }

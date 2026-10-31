@@ -19,6 +19,15 @@ from app.models.enums import AiCallStatus, Recommendation
 
 class AiCall(Base):
     __tablename__ = "ai_calls"
+    __table_args__ = (
+        CheckConstraint(
+            "input_tokens >= 0 AND output_tokens >= 0"
+            " AND cache_read_tokens >= 0 AND cache_write_tokens >= 0",
+            name="tokens_not_negative",
+        ),
+        CheckConstraint("cost_usd >= 0", name="cost_not_negative"),
+        CheckConstraint("latency_ms >= 0", name="latency_not_negative"),
+    )
 
     id: Mapped[UUIDPK]
     application_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -58,6 +67,7 @@ class CreditMemo(Base):
     __table_args__ = (
         UniqueConstraint("application_id", "version"),
         CheckConstraint("confidence BETWEEN 0 AND 1", name="confidence_range"),
+        CheckConstraint("version > 0", name="version_positive"),
     )
 
     id: Mapped[UUIDPK]

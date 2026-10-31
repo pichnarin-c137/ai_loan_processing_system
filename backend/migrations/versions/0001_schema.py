@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.CheckConstraint(
@@ -47,7 +47,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("version", name=op.f("pk_policy_versions")),
@@ -97,13 +97,13 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.Column(
             "updated_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.Column("submitted_at", sa.DateTime(timezone=True), nullable=True),
@@ -192,7 +192,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
@@ -267,10 +267,10 @@ def upgrade() -> None:
         sa.Column(
             "decided_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
-        sa.CheckConstraint("btrim(note) <> ''", name=op.f("ck_decisions_note_not_blank")),
+        sa.CheckConstraint(r"note ~ '\S'", name=op.f("ck_decisions_note_not_blank")),
         sa.ForeignKeyConstraint(
             ["application_id"],
             ["loan_applications.id"],
@@ -317,7 +317,7 @@ def upgrade() -> None:
         sa.Column(
             "uploaded_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
@@ -325,6 +325,8 @@ def upgrade() -> None:
             ["loan_applications.id"],
             name=op.f("fk_documents_application_id_loan_applications"),
         ),
+        sa.CheckConstraint("page_count > 0", name=op.f("ck_documents_page_count_positive")),
+        sa.CheckConstraint("size_bytes > 0", name=op.f("ck_documents_size_positive")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_documents")),
         sa.UniqueConstraint("storage_key", name=op.f("uq_documents_storage_key")),
     )
@@ -372,7 +374,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
@@ -413,7 +415,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
@@ -422,9 +424,9 @@ def upgrade() -> None:
             name=op.f("fk_rule_results_application_id_loan_applications"),
         ),
         sa.ForeignKeyConstraint(
-            ["policy_version"],
-            ["policy_versions.version"],
-            name=op.f("fk_rule_results_policy_version_policy_versions"),
+            ["policy_version", "rule_code"],
+            ["policy_rules.policy_version", "policy_rules.rule_code"],
+            name=op.f("fk_rule_results_policy_version_policy_rules"),
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_rule_results")),
     )
@@ -466,7 +468,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
@@ -477,6 +479,13 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["document_id"], ["documents.id"], name=op.f("fk_ai_calls_document_id_documents")
         ),
+        sa.CheckConstraint(
+            "input_tokens >= 0 AND output_tokens >= 0"
+            " AND cache_read_tokens >= 0 AND cache_write_tokens >= 0",
+            name=op.f("ck_ai_calls_tokens_not_negative"),
+        ),
+        sa.CheckConstraint("cost_usd >= 0", name=op.f("ck_ai_calls_cost_not_negative")),
+        sa.CheckConstraint("latency_ms >= 0", name=op.f("ck_ai_calls_latency_not_negative")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_ai_calls")),
     )
     op.create_index(
@@ -508,12 +517,13 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.CheckConstraint(
             "confidence BETWEEN 0 AND 1", name=op.f("ck_credit_memos_confidence_range")
         ),
+        sa.CheckConstraint("version > 0", name=op.f("ck_credit_memos_version_positive")),
         sa.ForeignKeyConstraint(
             ["ai_call_id"], ["ai_calls.id"], name=op.f("fk_credit_memos_ai_call_id_ai_calls")
         ),
@@ -540,7 +550,7 @@ def upgrade() -> None:
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("clock_timestamp()"),
             nullable=False,
         ),
         sa.CheckConstraint(

@@ -8,13 +8,15 @@ from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import OperationalError
 
-from app.core.config import get_settings
+from app.core.config import get_settings, migration_database_url
 
 BACKEND = Path(__file__).resolve().parents[2]
 ROLE_SQL = BACKEND.parent / "infra" / "postgres" / "init" / "01-app-role.sql"
 TEST_DB = "loan_desk_test"
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
-OWNER_URL = make_url(get_settings().migration_database_url).set(database=TEST_DB)
+ADMIN_URL = make_url(migration_database_url())
+OWNER_URL = ADMIN_URL.set(database=TEST_DB)
 APP_URL = make_url(get_settings().database_url).set(database=TEST_DB)
 
 
@@ -24,9 +26,15 @@ def _new_config() -> Config:
 
 @pytest.fixture(scope="session")
 def _test_database() -> Iterator[None]:
-    admin_url = make_url(get_settings().migration_database_url)
+    # The fixture drops and recreates a database and creates a role with a known password.
+    if ADMIN_URL.host not in LOCAL_HOSTS:
+        pytest.fail(
+            f"Database tests only run against a local Postgres, not {ADMIN_URL.host}. "
+            "Check MIGRATION_DATABASE_URL.",
+            pytrace=False,
+        )
     admin = create_engine(
-        admin_url, isolation_level="AUTOCOMMIT", connect_args={"connect_timeout": 3}
+        ADMIN_URL, isolation_level="AUTOCOMMIT", connect_args={"connect_timeout": 3}
     )
     try:
         with admin.connect() as conn:
@@ -37,7 +45,7 @@ def _test_database() -> Iterator[None]:
         admin.dispose()
         pytest.fail(
             "Database tests need Postgres at "
-            f"{admin_url.render_as_string(hide_password=True)}. "
+            f"{ADMIN_URL.render_as_string(hide_password=True)}. "
             "Start it: docker compose -f infra/compose.yml up -d postgres",
             pytrace=False,
         )

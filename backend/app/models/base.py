@@ -27,7 +27,9 @@ class Base(DeclarativeBase):
 
 # uuidv7() is time-ordered (index-friendly) and built into Postgres 18.
 UUIDPK = Annotated[uuid.UUID, mapped_column(primary_key=True, server_default=text("uuidv7()"))]
-CreatedAt = Annotated[datetime, mapped_column(server_default=func.now())]
+# clock_timestamp(), not now(): now() is the transaction's start time, so every row written
+# in one transaction would get the same timestamp.
+CreatedAt = Annotated[datetime, mapped_column(server_default=func.clock_timestamp())]
 
 
 def enum_values(enum_cls: type[StrEnum]) -> list[str]:

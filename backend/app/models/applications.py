@@ -50,12 +50,18 @@ class LoanApplication(Base):
     )
     created_by: Mapped[str] = mapped_column(Text)
     created_at: Mapped[CreatedAt]
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.clock_timestamp(), onupdate=func.clock_timestamp()
+    )
     submitted_at: Mapped[datetime | None]
 
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = (
+        CheckConstraint("page_count > 0", name="page_count_positive"),
+        CheckConstraint("size_bytes > 0", name="size_positive"),
+    )
 
     id: Mapped[UUIDPK]
     application_id: Mapped[uuid.UUID] = mapped_column(
@@ -68,4 +74,4 @@ class Document(Base):
     content_type: Mapped[str] = mapped_column(Text)
     size_bytes: Mapped[int] = mapped_column(BigInteger)
     uploaded_by: Mapped[str] = mapped_column(Text)
-    uploaded_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    uploaded_at: Mapped[datetime] = mapped_column(server_default=func.clock_timestamp())

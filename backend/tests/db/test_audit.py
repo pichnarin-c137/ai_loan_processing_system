@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 import pytest
 from sqlalchemy import Engine, text
@@ -8,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.models import AuditEvent
 from app.models.enums import ActorType
 from app.services.audit import record
+from tests.db.factories import new_application
 
 
 def insert_event(engine: Engine) -> uuid.UUID:
@@ -45,6 +47,54 @@ def test_record_writes_an_event(app_engine: Engine) -> None:
         assert row.application_id is None
         assert row.payload_json == {"marker": marker}
         assert row.created_at is not None
+
+
+def test_record_keeps_decimals_exact() -> None:
+    with Session() as session:
+        event = record(
+            session,
+            actor_type=ActorType.SYSTEM,
+            actor_id=None,
+            action="test.decimal",
+            payload={"amount": Decimal("1234567890.123456")},
+        )
+    assert event.payload_json == {"amount": "1234567890.123456"}
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf")])
+def test_record_rejects_nan_and_infinity(value: float) -> None:
+    with Session() as session, pytest.raises(ValueError, match="Out of range float"):
+        record(
+            session,
+            actor_type=ActorType.SYSTEM,
+            actor_id=None,
+            action="test.nan",
+            payload={"ratio": value},
+        )
+
+
+def test_record_links_a_new_application(app_engine: Engine) -> None:
+    with Session(app_engine) as session:
+        application = new_application(session)
+        event = record(
+            session,
+            actor_type=ActorType.HUMAN,
+            actor_id="tester",
+            action="application.created",
+            application=application,
+        )
+        session.commit()
+        assert event.application_id is not None
+        assert event.application_id == application.id
+
+
+def test_events_in_one_transaction_get_their_own_times(app_engine: Engine) -> None:
+    with Session(app_engine) as session:
+        first = record(session, actor_type=ActorType.SYSTEM, actor_id=None, action="test.first")
+        session.flush()
+        second = record(session, actor_type=ActorType.SYSTEM, actor_id=None, action="test.second")
+        session.commit()
+        assert first.created_at < second.created_at
 
 
 STATEMENTS = [

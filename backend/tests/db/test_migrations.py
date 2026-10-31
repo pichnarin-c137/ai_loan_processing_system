@@ -26,4 +26,8 @@ def test_key_check_constraints_exist(owner_engine: Engine) -> None:
         "ck_loan_applications_stage",
         "ck_loan_applications_amount_positive",
         "ck_decisions_note_not_blank",
+        "ck_documents_size_positive",
+        "ck_ai_calls_tokens_not_negative",
+        "ck_ai_calls_cost_not_negative",
+        "ck_credit_memos_version_positive",
     } <= names

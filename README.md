@@ -31,13 +31,16 @@ pnpm lint && pnpm typecheck && pnpm format:check && pnpm spell && pnpm test && p
 cd backend && uv run ruff check && uv run ruff format --check && uv run mypy app tests && uv run pytest
 ```
 
-The backend tests need Postgres: `docker compose -f infra/compose.yml up -d postgres`.
+The backend tests need Postgres: `docker compose -f infra/compose.yml up -d postgres`. They
+recreate a `loan_desk_test` database, so they refuse to run against anything but `localhost`.
 
 ## Database
 
 Migrations live in `backend/migrations/` and run as the owner role `loan_desk` (the `migrate`
-service does this on `docker compose up`). The API and worker connect as `loan_desk_app`, which
-can't change or delete audit events. To add a migration:
+service does this on `docker compose up`). Only the migration step gets `MIGRATION_DATABASE_URL`;
+never put it in `.env`. The API and worker connect as `loan_desk_app`, which can only add rows to
+the history tables (audit events, decisions, AI calls, rule results, credit memos). To add a
+migration:
 
 ```sh
 cd backend && uv run alembic revision --autogenerate -m "add widgets"
