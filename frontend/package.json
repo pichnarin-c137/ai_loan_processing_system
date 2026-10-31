@@ -21,6 +21,8 @@
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^24",
 		"@vitest/browser-playwright": "^4.1.8",
+		"auth": "workspace:*",
+		"better-auth": "^1.7.14",
 		"playwright": "^1.60.0",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.6.0",

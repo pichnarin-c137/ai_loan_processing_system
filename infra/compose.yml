@@ -2,6 +2,24 @@
 # The credentials below are for local use only. Production values come from the server's .env.
 name: loan-desk
 
+# The auth service and its migration step. BETTER_AUTH_SECRET falls back to a local-only value
+# (auth/src/env.ts); production sets a real one in .env.
+x-auth: &auth
+  build:
+    context: ..
+    dockerfile: auth/Dockerfile
+  env_file:
+    - path: ../.env
+      required: false
+  environment:
+    NODE_ENV: development
+    AUTH_DATABASE_URL: postgres://loan_desk_auth:loan_desk_auth@postgres:5432/loan_desk
+    # The site's public origin (the Vite dev server); also the JWT issuer.
+    BETTER_AUTH_URL: http://localhost:5173
+    AUTH_JWT_AUDIENCE: loan-desk-api
+  volumes:
+    - ../auth/src:/repo/auth/src:ro,z
+
 x-backend: &backend
   build: ../backend
   env_file:
@@ -14,6 +32,10 @@ x-backend: &backend
     S3_ACCESS_KEY: loan-desk
     S3_SECRET_KEY: loan-desk-secret
     S3_BUCKET: loan-desk-documents
+    # FastAPI checks the JWTs the auth service issues against its public keys.
+    AUTH_JWKS_URL: http://auth:3001/api/auth/jwks
+    AUTH_ISSUER: http://localhost:5173
+    AUTH_AUDIENCE: loan-desk-api
   volumes:
     - ../backend/app:/app/app:ro,z
   depends_on:
@@ -99,20 +121,22 @@ services:
     <<: *backend
     command: [dramatiq, app.worker.tasks, --processes, '1', --threads, '2']
 
+  # One-shot: creates or updates Better Auth's tables in the auth schema, then exits.
+  auth-migrate:
+    <<: *auth
+    command: [node, src/migrate.ts]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   auth:
-    build:
-      context: ..
-      dockerfile: auth/Dockerfile
+    <<: *auth
     command: [node, --watch, src/index.ts]
-    env_file:
-      - path: ../.env
-        required: false
-    environment:
-      NODE_ENV: development
-    volumes:
-      - ../auth/src:/repo/auth/src:ro,z
     ports:
       - 127.0.0.1:3001:3001
+    depends_on:
+      auth-migrate:
+        condition: service_completed_successfully
 
   # Vite dev server, using the node_modules installed on the host by `pnpm install`.
   web:

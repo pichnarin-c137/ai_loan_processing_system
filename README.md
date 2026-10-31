@@ -31,8 +31,48 @@ pnpm lint && pnpm typecheck && pnpm format:check && pnpm spell && pnpm test && p
 cd backend && uv run ruff check && uv run ruff format --check && uv run mypy app tests && uv run pytest
 ```
 
-The backend tests need Postgres: `docker compose -f infra/compose.yml up -d postgres`. They
-recreate a `loan_desk_test` database, so they refuse to run against anything but `localhost`.
+The backend and auth tests need Postgres: `docker compose -f infra/compose.yml up -d postgres`.
+They recreate the `loan_desk_test` and `loan_desk_auth_test` databases, so they refuse to run
+against anything but `localhost`.
+
+## Accounts
+
+Sign-up is by invite only. Create the first admin once the stack is up:
+
+```sh
+ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='at-least-12-chars' ADMIN_NAME=Admin \
+  docker compose -f infra/compose.yml run --rm -e ADMIN_EMAIL -e ADMIN_PASSWORD -e ADMIN_NAME auth node src/seed-admin.ts
+```
+
+The admin signs in at `/login` and creates invite links with a role at `/admin/users`. There is no
+email yet, so send the link yourself. The token sits after the `#`, so it never reaches server logs,
+and only its hash is stored.
+
+The auth service (Better Auth) keeps its tables in the `auth` schema and connects as
+`loan_desk_auth`, which has no access to the loan tables; `loan_desk_app` has none in `auth`. The
+`auth-migrate` service creates the tables on `docker compose up`. FastAPI never sees passwords: the
+browser gets a 15-minute JWT from `/api/auth/token`, and the API checks it against
+`/api/auth/jwks`. A banned user's token stays valid until it expires.
+
+In production:
+
+- Create the role and schema by hand with a strong password before the first deploy (the init
+  script only runs locally), then point `AUTH_DATABASE_URL` at that role:
+
+  ```sql
+  CREATE ROLE loan_desk_auth LOGIN PASSWORD '<strong password>';
+  CREATE SCHEMA auth AUTHORIZATION loan_desk_auth;
+  ```
+
+- Set `BETTER_AUTH_SECRET` (`openssl rand -base64 32`) on the auth service only. It refuses to
+  start in production without one.
+- Sign-in is rate limited per client IP, read from `X-Forwarded-For`. The proxy in front of the
+  auth service must replace that header with the address it saw (Caddy's `reverse_proxy` does by
+  default); otherwise a client can pick its own IP and dodge the limit. If a proxy adds to the
+  header instead, list the proxies' IPs or CIDR ranges in `AUTH_TRUSTED_PROXIES`: the auth service
+  then takes the last address that isn't one of them. Without it, a header with several addresses
+  gives no IP, and all those requests share one limit. Locally they count as `127.0.0.1`, which is
+  fine for the Vite dev proxy (`xfwd` adds to the header).
 
 ## Database
 

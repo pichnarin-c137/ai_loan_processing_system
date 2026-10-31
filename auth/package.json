@@ -3,18 +3,29 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
+	"exports": {
+		"./invite": "./src/invite-shared.ts",
+		"./roles": "./src/roles.ts"
+	},
 	"scripts": {
 		"dev": "node --watch src/index.ts",
 		"start": "node src/index.ts",
+		"migrate": "node src/migrate.ts",
+		"seed-admin": "node src/seed-admin.ts",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run"
 	},
 	"dependencies": {
 		"@hono/node-server": "^2.1.5",
-		"hono": "^4.13.14"
+		"better-auth": "^1.7.14",
+		"hono": "^4.13.14",
+		"pg": "^8.23.1",
+		"zod": "^4.6.7"
 	},
 	"devDependencies": {
 		"@types/node": "^24.19.2",
+		"@types/pg": "^8.23.1",
+		"jose": "^6.2.13",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.12"
 	}
