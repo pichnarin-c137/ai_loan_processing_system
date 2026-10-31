@@ -1,0 +1,20 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build and test output
+dist/
+build/
+coverage/
+test-results/
+playwright-report/
+
+.DS_Store

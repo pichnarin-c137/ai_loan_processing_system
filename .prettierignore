@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+backend/
+frontend/static/
+frontend/src/lib/paraglide/
+frontend/project.inlang/
+.svelte-kit/
+build/
+test-results/
+playwright-report/

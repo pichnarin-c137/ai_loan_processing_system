@@ -1,0 +1,13 @@
+packages:
+  - frontend
+  - auth
+
+# Supply-chain safety: a new package version must be public for 3 days (in minutes)
+# before pnpm will install it. Most malicious releases are caught and pulled sooner.
+minimumReleaseAge: 4320
+
+# Only packages listed as true may run install scripts. Anything new fails the install
+# until it is reviewed and added here.
+allowBuilds:
+  # The binary comes from an optional dependency; `pnpm prepare` installs the git hooks.
+  lefthook: false

@@ -1,0 +1,14 @@
+{
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		// Node runs the .ts files directly (type stripping), so there is no build step.
+		"target": "esnext",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"allowImportingTsExtensions": true,
+		"erasableSyntaxOnly": true,
+		"noEmit": true,
+		"types": ["node"]
+	},
+	"include": ["src"]
+}
