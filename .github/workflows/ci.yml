@@ -47,13 +47,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install safe-chain (blocks known-malicious packages)
-        run: npm install --global @aikidosec/safe-chain@1.5.27 && safe-chain setup-ci
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           version: 0.13.6
           enable-cache: true
           cache-dependency-glob: backend/uv.lock
+      # After setup-uv, so safe-chain finds uv and wraps it.
+      - name: Install safe-chain (blocks known-malicious packages)
+        run: npm install --global @aikidosec/safe-chain@1.5.27 && safe-chain setup-ci
       - run: uv sync --frozen
       - run: uv run ruff check
       - run: uv run ruff format --check

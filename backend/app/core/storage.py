@@ -13,11 +13,12 @@ if TYPE_CHECKING:
 @lru_cache
 def get_s3_client() -> "S3Client":
     settings = get_settings()
-    return boto3.client(
+    # A dedicated session: boto3's shared default session isn't thread-safe while creating clients.
+    return boto3.session.Session().client(
         "s3",
         endpoint_url=settings.s3_endpoint_url,
         region_name=settings.s3_region,
         aws_access_key_id=settings.s3_access_key,
         aws_secret_access_key=settings.s3_secret_key.get_secret_value(),
-        config=Config(connect_timeout=2, read_timeout=3, retries={"max_attempts": 1}),
+        config=Config(connect_timeout=2, read_timeout=3, retries={"total_max_attempts": 1}),
     )

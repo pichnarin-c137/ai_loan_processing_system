@@ -32,10 +32,10 @@ function isHealthReport(value: unknown): value is HealthReport {
 	);
 }
 
-/** The parsed JSON body, or null if the request or parsing failed. */
+/** The parsed JSON body, or null if the request or parsing failed or took longer than 5 seconds. */
 async function getJson(fetchFn: typeof fetch, url: string): Promise<unknown> {
 	try {
-		const response = await fetchFn(url);
+		const response = await fetchFn(url, { signal: AbortSignal.timeout(5000) });
 		return (await response.json()) as unknown;
 	} catch {
 		return null;
