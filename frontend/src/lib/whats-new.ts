@@ -21,6 +21,33 @@ export const repoUrl = 'https://github.com/pichnarin-c137/ai_loan_processing_sys
  */
 export const releases: Release[] = [
 	{
+		date: '2026-11-01',
+		prs: [7],
+		title: { en: 'Applying for a loan', km: 'ការដាក់ពាក្យស្នើសុំកម្ចី' },
+		items: [
+			{
+				en: 'Customers can apply for a loan in four steps: the loan, about you, documents, and review and submit. Each step is saved, so you can stop and come back later.',
+				km: 'អតិថិជនអាចដាក់ពាក្យស្នើសុំកម្ចីជា ៤ ជំហាន៖ កម្ចី អំពីអ្នក ឯកសារ និងពិនិត្យ និងដាក់ស្នើ។ ជំហាននីមួយៗត្រូវបានរក្សាទុក ដូច្នេះអ្នកអាចឈប់ ហើយត្រឡប់មកបន្តពេលក្រោយបាន។'
+			},
+			{
+				en: 'A loan can be in US dollars or riel. The form also shows the amount in the other currency, at a fixed rate set by the lender.',
+				km: 'កម្ចីអាចជាប្រាក់ដុល្លារអាមេរិក ឬប្រាក់រៀល។ ទម្រង់ក៏បង្ហាញចំនួនទឹកប្រាក់ជារូបិយប័ណ្ណមួយទៀតដែរ តាមអត្រាប្តូរប្រាក់ថេរដែលកំណត់ដោយស្ថាប័នផ្តល់កម្ចី។'
+			},
+			{
+				en: 'Add each document by taking a photo with your phone or choosing a file. Photos are made smaller before they are sent, and their location data is removed.',
+				km: 'បញ្ចូលឯកសារនីមួយៗដោយថតរូបតាមទូរស័ព្ទ ឬជ្រើសរើសឯកសារ។ រូបថតត្រូវបានបង្រួមមុនពេលផ្ញើ ហើយព័ត៌មានទីតាំងត្រូវបានលុបចេញ។'
+			},
+			{
+				en: 'Files that can’t be read, need a password to open, or are too large are refused straight away, with a message that says why.',
+				km: 'ឯកសារដែលអានមិនបាន ត្រូវការពាក្យសម្ងាត់ដើម្បីបើក ឬធំពេក ត្រូវបានបដិសេធភ្លាមៗ ដោយមានសារប្រាប់មូលហេតុ។'
+			},
+			{
+				en: 'My applications lists your applications. Each one has a page that shows where it is: not submitted yet, checking your documents, under review, or decision.',
+				km: 'ទំព័រ «ពាក្យស្នើសុំរបស់ខ្ញុំ» បង្ហាញពាក្យស្នើសុំរបស់អ្នក។ ពាក្យស្នើសុំនីមួយៗមានទំព័របង្ហាញស្ថានភាព៖ មិនទាន់ដាក់ស្នើ កំពុងពិនិត្យឯកសាររបស់អ្នក កំពុងពិនិត្យ ឬការសម្រេចចិត្ត។'
+			}
+		]
+	},
+	{
 		date: '2026-10-31',
 		prs: [6],
 		title: { en: 'What’s new page', km: 'ទំព័រអ្វីដែលថ្មី' },
