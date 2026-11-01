@@ -81,3 +81,18 @@ class RuleAction(StrEnum):
 class AiCallStatus(StrEnum):
     SUCCEEDED = "succeeded"
     FAILED = "failed"
+
+
+class Currency(StrEnum):
+    USD = "USD"
+    KHR = "KHR"
+
+
+# What the customer sees; derived from Stage, never stored.
+class CustomerStatus(StrEnum):
+    DRAFT = "draft"
+    CHECKING = "checking"
+    UNDER_REVIEW = "under_review"
+    ACTION_NEEDED = "action_needed"
+    APPROVED = "approved"
+    NOT_APPROVED = "not_approved"

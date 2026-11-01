@@ -11,6 +11,7 @@ datagen
 datname
 dramatiq
 fastapi
+filechooser
 healthcheck
 httpx
 inlang
@@ -24,10 +25,12 @@ onretry
 onupdate
 plpgsql
 poolclass
+precheck
 psycopg
 pycache
 pydantic
 pyjwt
+pypdf
 pyproject
 pytest
 PYTHONUNBUFFERED
@@ -37,6 +40,7 @@ refetches
 repr
 rolname
 seaweedfs
+shadcn
 sqlalchemy
 testpaths
 UUIDPK

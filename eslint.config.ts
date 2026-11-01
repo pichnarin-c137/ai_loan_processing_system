@@ -14,6 +14,7 @@ export default defineConfig(
 		'**/test-results/',
 		'**/playwright-report/',
 		'frontend/src/lib/paraglide/',
+		'frontend/src/lib/api/schema.d.ts',
 		'backend/',
 		'datagen/',
 		'eval/'
@@ -61,6 +62,16 @@ export default defineConfig(
 		rules: {
 			// Every component must be TypeScript: <script lang="ts">.
 			'svelte/block-lang': ['error', { script: 'ts', style: null }]
+		}
+	},
+	{
+		// shadcn-svelte components are copied from its registry. Keep them close to upstream so
+		// updates stay easy, and relax the few rules its code doesn't follow.
+		files: ['frontend/src/lib/components/ui/**'],
+		rules: {
+			'@typescript-eslint/no-useless-default-assignment': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'svelte/no-navigation-without-resolve': 'off'
 		}
 	},
 	{

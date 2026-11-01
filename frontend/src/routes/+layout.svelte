@@ -2,11 +2,13 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { forgetUserData, queryClient } from '#lib/api/query.js';
 	import favicon from '#lib/assets/favicon.svg';
 	import { authClient } from '#lib/auth/client.js';
 	import { appName } from '#lib/config.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { getLocale, locales, setLocale } from '#lib/paraglide/runtime.js';
+	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import './layout.css';
 	import type { LayoutProps } from './$types';
 
@@ -18,8 +20,24 @@
 	const session = authClient.useSession();
 	const loginPath = resolve('/(auth)/login');
 
+	// A session can also end, or change to someone else, without the Sign out button: it expires,
+	// or another tab signs in. Forget the last person's token and data when that happens.
+	// (Signing in from signed out is handled by the login and invite pages.)
+	let lastUserId: string | null = null;
+	$effect(() => {
+		if ($session.isPending) return;
+		const userId = $session.data?.user.id ?? null;
+		if (lastUserId && userId !== lastUserId) forgetUserData();
+		lastUserId = userId;
+	});
+
 	async function signOut() {
-		await authClient.signOut();
+		try {
+			await authClient.signOut();
+		} finally {
+			// Even if the network failed, this tab must not keep the token or the data.
+			forgetUserData();
+		}
 		await goto(loginPath);
 	}
 </script>
@@ -62,6 +80,8 @@
 		</div>
 	</header>
 	<div class="flex flex-1 flex-col">
-		{@render children()}
+		<QueryClientProvider client={queryClient}>
+			{@render children()}
+		</QueryClientProvider>
 	</div>
 </div>

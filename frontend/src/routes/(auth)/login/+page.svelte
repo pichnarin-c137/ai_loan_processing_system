@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { isRole } from 'auth/roles';
+	import { forgetUserData } from '#lib/api/query.js';
 	import { authClient } from '#lib/auth/client.js';
 	import { homeFor, safeNext } from '#lib/auth/navigation.js';
 	import { m } from '#lib/paraglide/messages.js';
@@ -26,9 +27,11 @@
 				error = failure?.status === 429 ? m.login_rate_limited() : m.login_failed();
 				return;
 			}
+			// The tab may still hold someone else's API token if their session ended without Sign out.
+			forgetUserData();
 			const next = safeNext(page.url.searchParams.get('next')) ?? homeFor(role);
 			// eslint-disable-next-line svelte/no-navigation-without-resolve -- a checked path on this site
-			await goto(next, { replaceState: true });
+			await goto(next, { replace: true });
 		} catch {
 			error = m.network_error();
 		} finally {

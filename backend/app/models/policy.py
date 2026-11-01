@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy import ForeignKey, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import UUIDPK, Base, CreatedAt, str_enum
@@ -10,11 +10,13 @@ from app.models.enums import RuleAction
 
 class PolicyVersion(Base):
     __tablename__ = "policy_versions"
+    __table_args__ = (CheckConstraint("khr_per_usd > 0", name="khr_per_usd_positive"),)
 
     version: Mapped[str] = mapped_column(String(16), primary_key=True)  # e.g. "2026.1"
     approved_by: Mapped[str] = mapped_column(Text)
     effective_from: Mapped[date]
     notes: Mapped[str | None] = mapped_column(Text)
+    khr_per_usd: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     created_at: Mapped[CreatedAt]
 
 

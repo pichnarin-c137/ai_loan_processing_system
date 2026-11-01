@@ -28,12 +28,16 @@ the host instead.
 
 ```sh
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm spell && pnpm test && pnpm e2e
-cd backend && uv run ruff check && uv run ruff format --check && uv run mypy app tests && uv run pytest
+cd backend && uv run ruff check && uv run ruff format --check && uv run mypy app tests scripts && uv run pytest
 ```
 
 The backend and auth tests need Postgres: `docker compose -f infra/compose.yml up -d postgres`.
 They recreate the `loan_desk_test` and `loan_desk_auth_test` databases, so they refuse to run
 against anything but `localhost`.
+
+After changing an API route or schema, run `pnpm gen:api`. It writes the OpenAPI schema to
+`frontend/src/lib/api/openapi.json` and the frontend's types to `schema.d.ts`; commit both. CI fails
+if either is out of date.
 
 ## Accounts
 
