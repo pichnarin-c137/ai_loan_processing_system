@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { forgetUserData } from '#lib/api/query.js';
 	import { authClient, INVITE_HEADER, invites, type InviteCheck } from '#lib/auth/client.js';
 	import { homeFor } from '#lib/auth/navigation.js';
 	import { roleLabel } from '#lib/auth/role-label.js';
@@ -57,8 +58,10 @@
 			busy = false;
 		}
 		// Signing up also signs in. The role comes from the invite, never from the form.
+		// Forget any token or data an earlier session left in this tab.
+		forgetUserData();
 		// eslint-disable-next-line svelte/no-navigation-without-resolve -- a fixed path from homeFor
-		await goto(homeFor(found.role), { replaceState: true });
+		await goto(homeFor(found.role), { replace: true });
 	}
 </script>
 

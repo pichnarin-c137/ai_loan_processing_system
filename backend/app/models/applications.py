@@ -2,11 +2,22 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import UUIDPK, Base, CreatedAt, str_enum
-from app.models.enums import DocType, Product, Stage
+from app.models.enums import Currency, DocType, Product, Stage
 
 # User references (user_id, created_by, uploaded_by, ...) are plain Text with no FK:
 # Better Auth owns the user table (Step 4).
@@ -31,14 +42,19 @@ class Applicant(Base):
 class LoanApplication(Base):
     __tablename__ = "loan_applications"
     __table_args__ = (
-        CheckConstraint("amount_usd > 0", name="amount_positive"),
+        CheckConstraint("amount > 0", name="amount_positive"),
+        CheckConstraint(
+            "stage = 'DRAFT' OR applicant_id IS NOT NULL", name="applicant_after_draft"
+        ),
         CheckConstraint("term_months > 0", name="term_positive"),
     )
 
     id: Mapped[UUIDPK]
-    applicant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("applicants.id"), index=True)
+    # Null while the application is a draft.
+    applicant_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("applicants.id"), index=True)
     product: Mapped[Product] = mapped_column(str_enum(Product, "product"))
-    amount_usd: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    currency: Mapped[Currency] = mapped_column(str_enum(Currency, "currency"))
+    amount: Mapped[Decimal] = mapped_column(Numeric(14, 2))
     term_months: Mapped[int] = mapped_column(Integer)
     purpose: Mapped[str] = mapped_column(Text)
     stage: Mapped[Stage] = mapped_column(
@@ -61,6 +77,13 @@ class Document(Base):
     __table_args__ = (
         CheckConstraint("page_count > 0", name="page_count_positive"),
         CheckConstraint("size_bytes > 0", name="size_positive"),
+        Index(
+            "uq_documents_active_doc_type",
+            "application_id",
+            "doc_type",
+            unique=True,
+            postgresql_where=text("replaced_at IS NULL"),
+        ),
     )
 
     id: Mapped[UUIDPK]
@@ -75,3 +98,4 @@ class Document(Base):
     size_bytes: Mapped[int] = mapped_column(BigInteger)
     uploaded_by: Mapped[str] = mapped_column(Text)
     uploaded_at: Mapped[datetime] = mapped_column(server_default=func.clock_timestamp())
+    replaced_at: Mapped[datetime | None]

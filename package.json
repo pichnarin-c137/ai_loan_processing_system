@@ -16,7 +16,8 @@
 		"typecheck": "pnpm --recursive typecheck",
 		"spell": "cspell --no-progress --gitignore .",
 		"test": "pnpm --recursive test",
-		"e2e": "pnpm --filter frontend e2e"
+		"e2e": "pnpm --filter frontend e2e",
+		"gen:api": "cd backend && uv run python scripts/dump_openapi.py && cd .. && pnpm --filter frontend gen:api"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlalchemy.orm import Session
 
 from app.models import Applicant, LoanApplication
-from app.models.enums import Product
+from app.models.enums import Currency, Product
 
 
 def new_application(session: Session) -> LoanApplication:
@@ -20,7 +20,8 @@ def new_application(session: Session) -> LoanApplication:
     return LoanApplication(
         applicant_id=applicant.id,
         product=Product.PERSONAL,
-        amount_usd=Decimal("1000.00"),
+        currency=Currency.USD,
+        amount=Decimal("1000.00"),
         term_months=12,
         purpose="test",
         created_by="tester",

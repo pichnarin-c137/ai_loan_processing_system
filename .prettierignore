@@ -7,3 +7,5 @@ frontend/project.inlang/
 build/
 test-results/
 playwright-report/
+frontend/src/lib/api/openapi.json
+frontend/src/lib/api/schema.d.ts
